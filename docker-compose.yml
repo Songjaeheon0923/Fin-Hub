@@ -1,0 +1,272 @@
+version: '3.8'
+
+services:
+  # Service Discovery
+  consul:
+    image: consul:1.17
+    container_name: fin-hub-consul
+    ports:
+      - "8500:8500"
+    volumes:
+      - ./infrastructure/consul/config:/consul/config
+      - consul_data:/consul/data
+    command: >
+      consul agent -server -bootstrap -ui
+      -client=0.0.0.0
+      -config-dir=/consul/config
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "consul", "kv", "get", "service/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Cache Layer
+  redis:
+    image: redis:7.2-alpine
+    container_name: fin-hub-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fin-hub-postgres
+    environment:
+      - POSTGRES_DB=fin_hub_registry
+      - POSTGRES_USER=fin_hub
+      - POSTGRES_PASSWORD=fin_hub_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fin_hub -d fin_hub_registry"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # API Gateway
+  nginx:
+    build:
+      context: ./infrastructure/nginx
+      dockerfile: Dockerfile
+    container_name: fin-hub-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/conf:/etc/nginx/conf.d
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - hub-server
+      - consul
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Hub Server
+  hub-server:
+    build:
+      context: ./services/hub-server
+      dockerfile: Dockerfile
+      target: production
+    container_name: fin-hub-server
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://fin_hub:fin_hub_pass@postgres:5432/fin_hub_registry
+      - REDIS_URL=redis://redis:6379/0
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    volumes:
+      - ./services/hub-server/logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Market Analysis Spoke
+  market-spoke:
+    build:
+      context: ./services/market-spoke
+      dockerfile: Dockerfile
+      target: production
+    container_name: fin-hub-market
+    ports:
+      - "8001:8000"
+    environment:
+      - ENVIRONMENT=production
+      - HUB_URL=http://hub-server:8000
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+      - SERVICE_NAME=market-spoke
+      - SERVICE_PORT=8000
+    volumes:
+      - ./services/market-spoke/logs:/app/logs
+    depends_on:
+      hub-server:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Risk Management Spoke
+  risk-spoke:
+    build:
+      context: ./services/risk-spoke
+      dockerfile: Dockerfile
+      target: production
+    container_name: fin-hub-risk
+    ports:
+      - "8002:8000"
+    environment:
+      - ENVIRONMENT=production
+      - HUB_URL=http://hub-server:8000
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+      - SERVICE_NAME=risk-spoke
+      - SERVICE_PORT=8000
+    volumes:
+      - ./services/risk-spoke/logs:/app/logs
+      - ./services/risk-spoke/models:/app/models
+    depends_on:
+      hub-server:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Portfolio Management Spoke
+  pfolio-spoke:
+    build:
+      context: ./services/pfolio-spoke
+      dockerfile: Dockerfile
+      target: production
+    container_name: fin-hub-pfolio
+    ports:
+      - "8003:8000"
+    environment:
+      - ENVIRONMENT=production
+      - HUB_URL=http://hub-server:8000
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+      - SERVICE_NAME=pfolio-spoke
+      - SERVICE_PORT=8000
+    volumes:
+      - ./services/pfolio-spoke/logs:/app/logs
+    depends_on:
+      hub-server:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - fin-hub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: fin-hub-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./infrastructure/monitoring/prometheus/rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - fin-hub-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: fin-hub-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./infrastructure/monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - fin-hub-network
+    restart: unless-stopped
+
+volumes:
+  consul_data:
+  redis_data:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  fin-hub-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

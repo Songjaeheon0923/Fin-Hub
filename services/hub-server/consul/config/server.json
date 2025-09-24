@@ -1,0 +1,25 @@
+{
+  "datacenter": "dc1",
+  "server": true,
+  "bootstrap": true,
+  "ui_config": {
+    "enabled": true
+  },
+  "connect": {
+    "enabled": true
+  },
+  "log_level": "INFO",
+  "enable_syslog": false,
+  "leave_on_terminate": true,
+  "rejoin_after_leave": true,
+  "data_dir": "/consul/data",
+  "encrypt_verify_incoming": false,
+  "encrypt_verify_outgoing": false,
+  "acl": {
+    "enabled": false,
+    "default_policy": "allow"
+  },
+  "performance": {
+    "raft_multiplier": 1
+  }
+}
