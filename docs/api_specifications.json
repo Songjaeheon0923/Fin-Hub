@@ -1,0 +1,494 @@
+{
+  "api_registry": {
+    "version": "1.0.0",
+    "last_updated": "2025-01-15",
+    "apis": {
+      "alpha_vantage": {
+        "name": "Alpha Vantage API",
+        "status": "active",
+        "base_url": "https://www.alphavantage.co/query",
+        "authentication": {
+          "type": "api_key",
+          "parameter": "apikey"
+        },
+        "rate_limits": {
+          "requests_per_day": 25,
+          "requests_per_minute": 5
+        },
+        "functions": {
+          "GLOBAL_QUOTE": {
+            "purpose": "real_time_stock_quotes",
+            "required_params": ["function", "symbol", "apikey"],
+            "optional_params": [],
+            "response_structure": {
+              "Global Quote": {
+                "01. symbol": "string",
+                "02. open": "float",
+                "03. high": "float",
+                "04. low": "float",
+                "05. price": "float",
+                "06. volume": "integer",
+                "07. latest trading day": "date",
+                "08. previous close": "float",
+                "09. change": "float",
+                "10. change percent": "string"
+              }
+            },
+            "ai_usage": {
+              "trigger_keywords": ["current price", "stock price", "quote", "what's trading at"],
+              "confidence_threshold": 0.8,
+              "fallback_apis": ["marketstack"]
+            }
+          },
+          "TIME_SERIES_DAILY": {
+            "purpose": "historical_daily_prices",
+            "required_params": ["function", "symbol", "apikey"],
+            "optional_params": ["outputsize"],
+            "response_structure": {
+              "Meta Data": {
+                "1. Information": "string",
+                "2. Symbol": "string",
+                "3. Last Refreshed": "datetime",
+                "4. Output Size": "string",
+                "5. Time Zone": "string"
+              },
+              "Time Series (Daily)": {
+                "YYYY-MM-DD": {
+                  "1. open": "float",
+                  "2. high": "float",
+                  "3. low": "float",
+                  "4. close": "float",
+                  "5. volume": "integer"
+                }
+              }
+            },
+            "ai_usage": {
+              "trigger_keywords": ["price history", "historical data", "past performance", "chart"],
+              "confidence_threshold": 0.85,
+              "max_data_points": 100
+            }
+          },
+          "RSI": {
+            "purpose": "technical_indicators",
+            "required_params": ["function", "symbol", "interval", "time_period", "series_type", "apikey"],
+            "response_structure": {
+              "Meta Data": {
+                "1: Symbol": "string",
+                "2: Indicator": "string",
+                "3: Last Refreshed": "datetime"
+              },
+              "Technical Analysis: RSI": {
+                "YYYY-MM-DD": {
+                  "RSI": "float"
+                }
+              }
+            },
+            "ai_usage": {
+              "trigger_keywords": ["RSI", "technical analysis", "oversold", "overbought"],
+              "confidence_threshold": 0.9,
+              "interpretation": {
+                "oversold": "< 30",
+                "overbought": "> 70",
+                "neutral": "30-70"
+              }
+            }
+          },
+          "OVERVIEW": {
+            "purpose": "company_fundamentals",
+            "required_params": ["function", "symbol", "apikey"],
+            "response_structure": {
+              "Symbol": "string",
+              "Name": "string",
+              "Description": "string",
+              "Sector": "string",
+              "Industry": "string",
+              "MarketCapitalization": "string",
+              "PERatio": "string",
+              "DividendYield": "string"
+            },
+            "ai_usage": {
+              "trigger_keywords": ["company info", "about", "fundamentals", "what does", "sector"],
+              "confidence_threshold": 0.75
+            }
+          }
+        }
+      },
+      "marketstack": {
+        "name": "MarketStack API",
+        "status": "active",
+        "base_url": "http://api.marketstack.com/v1",
+        "authentication": {
+          "type": "api_key",
+          "parameter": "access_key"
+        },
+        "rate_limits": {
+          "requests_per_month": 1000
+        },
+        "functions": {
+          "eod": {
+            "purpose": "end_of_day_prices",
+            "required_params": ["access_key"],
+            "optional_params": ["symbols", "date_from", "date_to", "limit", "offset"],
+            "response_structure": {
+              "pagination": {
+                "limit": "integer",
+                "offset": "integer",
+                "count": "integer",
+                "total": "integer"
+              },
+              "data": [
+                {
+                  "open": "float",
+                  "high": "float",
+                  "low": "float",
+                  "close": "float",
+                  "volume": "float",
+                  "adj_high": "float",
+                  "adj_low": "float",
+                  "adj_close": "float",
+                  "adj_open": "float",
+                  "adj_volume": "float",
+                  "split_factor": "float",
+                  "dividend": "float",
+                  "symbol": "string",
+                  "exchange": "string",
+                  "date": "date"
+                }
+              ]
+            },
+            "ai_usage": {
+              "trigger_keywords": ["daily prices", "closing price", "historical data", "bulk data"],
+              "confidence_threshold": 0.8,
+              "preferred_over_alpha_vantage": ["bulk queries", "historical analysis", "backtesting"]
+            }
+          },
+          "intraday": {
+            "purpose": "intraday_prices",
+            "required_params": ["access_key"],
+            "optional_params": ["symbols", "interval", "date_from", "date_to"],
+            "intervals": ["1min", "5min", "10min", "15min", "30min", "1hour"],
+            "ai_usage": {
+              "trigger_keywords": ["intraday", "hourly", "minute data", "trading session"],
+              "confidence_threshold": 0.85
+            }
+          }
+        }
+      },
+      "news_api": {
+        "name": "News API",
+        "status": "active",
+        "base_url": "https://newsapi.org/v2",
+        "authentication": {
+          "type": "api_key",
+          "parameter": "apiKey"
+        },
+        "rate_limits": {
+          "requests_per_day": 1000
+        },
+        "functions": {
+          "everything": {
+            "purpose": "comprehensive_news_search",
+            "required_params": ["apiKey"],
+            "optional_params": ["q", "sources", "domains", "language", "sortBy", "pageSize", "from", "to"],
+            "response_structure": {
+              "status": "string",
+              "totalResults": "integer",
+              "articles": [
+                {
+                  "source": {
+                    "id": "string",
+                    "name": "string"
+                  },
+                  "author": "string",
+                  "title": "string",
+                  "description": "string",
+                  "url": "string",
+                  "urlToImage": "string",
+                  "publishedAt": "datetime",
+                  "content": "string"
+                }
+              ]
+            },
+            "ai_usage": {
+              "trigger_keywords": ["news", "latest", "articles", "what happened", "recent"],
+              "confidence_threshold": 0.7,
+              "financial_query_enhancement": {
+                "add_keywords": ["stock market", "financial", "earnings", "SEC"],
+                "preferred_sources": ["bloomberg", "reuters", "cnbc", "wall-street-journal"]
+              }
+            }
+          },
+          "top_headlines": {
+            "purpose": "breaking_news",
+            "required_params": ["apiKey"],
+            "optional_params": ["country", "category", "sources", "q", "pageSize"],
+            "ai_usage": {
+              "trigger_keywords": ["headlines", "breaking", "top news", "latest news"],
+              "confidence_threshold": 0.8,
+              "categories": ["business", "general"]
+            }
+          }
+        },
+        "sentiment_analysis": {
+          "enabled": true,
+          "method": "keyword_based",
+          "positive_keywords": ["surge", "gain", "profit", "growth", "rise", "bullish", "strong"],
+          "negative_keywords": ["fall", "loss", "decline", "crash", "bearish", "weak", "drop"],
+          "confidence_calculation": "keyword_count / total_words * contextual_weight"
+        }
+      },
+      "coingecko": {
+        "name": "CoinGecko API",
+        "status": "active",
+        "base_url": "https://api.coingecko.com/api/v3",
+        "authentication": {
+          "type": "api_key",
+          "header": "x-cg-demo-api-key"
+        },
+        "rate_limits": {
+          "requests_per_month": 10000
+        },
+        "functions": {
+          "simple_price": {
+            "purpose": "cryptocurrency_prices",
+            "required_params": ["ids", "vs_currencies"],
+            "optional_params": ["include_market_cap", "include_24hr_vol", "include_24hr_change"],
+            "response_structure": {
+              "coin_id": {
+                "currency": "float",
+                "currency_market_cap": "float",
+                "currency_24h_vol": "float",
+                "currency_24h_change": "float"
+              }
+            },
+            "ai_usage": {
+              "trigger_keywords": ["bitcoin price", "crypto price", "BTC", "ETH", "cryptocurrency"],
+              "confidence_threshold": 0.9,
+              "popular_coins": ["bitcoin", "ethereum", "cardano", "solana", "dogecoin", "polygon"]
+            }
+          },
+          "coins_markets": {
+            "purpose": "crypto_market_data",
+            "required_params": ["vs_currency"],
+            "optional_params": ["ids", "order", "per_page", "page"],
+            "ai_usage": {
+              "trigger_keywords": ["crypto market", "market cap", "trading volume", "crypto ranking"],
+              "confidence_threshold": 0.85
+            }
+          },
+          "trending": {
+            "purpose": "trending_cryptocurrencies",
+            "required_params": [],
+            "response_structure": {
+              "coins": [
+                {
+                  "item": {
+                    "id": "string",
+                    "coin_id": "integer",
+                    "name": "string",
+                    "symbol": "string",
+                    "market_cap_rank": "integer",
+                    "thumb": "string",
+                    "small": "string",
+                    "large": "string",
+                    "slug": "string",
+                    "price_btc": "float"
+                  }
+                }
+              ]
+            },
+            "ai_usage": {
+              "trigger_keywords": ["trending crypto", "popular coins", "what's hot", "crypto trends"],
+              "confidence_threshold": 0.8
+            }
+          }
+        }
+      },
+      "fred": {
+        "name": "FRED API (Federal Reserve Economic Data)",
+        "status": "active",
+        "base_url": "https://api.stlouisfed.org/fred",
+        "authentication": {
+          "type": "api_key",
+          "parameter": "api_key"
+        },
+        "rate_limits": {
+          "unlimited": true,
+          "fair_use_policy": true
+        },
+        "functions": {
+          "series_observations": {
+            "purpose": "economic_time_series_data",
+            "required_params": ["series_id", "api_key"],
+            "optional_params": ["limit", "offset", "sort_order", "observation_start", "observation_end"],
+            "response_structure": {
+              "realtime_start": "date",
+              "realtime_end": "date",
+              "observation_start": "date",
+              "observation_end": "date",
+              "units": "string",
+              "output_type": "integer",
+              "file_type": "string",
+              "order_by": "string",
+              "sort_order": "string",
+              "count": "integer",
+              "offset": "integer",
+              "limit": "integer",
+              "observations": [
+                {
+                  "realtime_start": "date",
+                  "realtime_end": "date",
+                  "date": "date",
+                  "value": "string"
+                }
+              ]
+            },
+            "ai_usage": {
+              "trigger_keywords": ["unemployment", "GDP", "inflation", "fed rate", "economic data"],
+              "confidence_threshold": 0.9,
+              "common_series": {
+                "UNRATE": "unemployment_rate",
+                "GDP": "gross_domestic_product",
+                "CPIAUCSL": "consumer_price_index",
+                "FEDFUNDS": "federal_funds_rate",
+                "DGS10": "10_year_treasury_rate"
+              }
+            }
+          },
+          "series_search": {
+            "purpose": "find_economic_series",
+            "required_params": ["search_text", "api_key"],
+            "ai_usage": {
+              "trigger_keywords": ["economic indicator", "find data", "economic series"],
+              "confidence_threshold": 0.7
+            }
+          }
+        }
+      },
+      "opensanctions": {
+        "name": "OpenSanctions API",
+        "status": "active",
+        "base_url": "https://api.opensanctions.org",
+        "authentication": {
+          "type": "api_key",
+          "header": "Authorization: ApiKey {key}"
+        },
+        "rate_limits": {
+          "requests_per_day": 1000
+        },
+        "functions": {
+          "search": {
+            "purpose": "sanctions_entity_search",
+            "required_params": [],
+            "optional_params": ["q", "countries", "topics", "datasets", "limit", "offset"],
+            "response_structure": {
+              "limit": "integer",
+              "offset": "integer",
+              "total": "object",
+              "results": [
+                {
+                  "id": "string",
+                  "caption": "string",
+                  "schema": "string",
+                  "datasets": ["string"],
+                  "first_seen": "date",
+                  "last_seen": "date",
+                  "last_change": "date",
+                  "properties": "object"
+                }
+              ]
+            },
+            "ai_usage": {
+              "trigger_keywords": ["sanctions", "screening", "compliance", "AML", "risk check"],
+              "confidence_threshold": 0.95,
+              "risk_assessment": {
+                "high_risk_datasets": ["eu_sanctions", "us_ofac", "un_sanctions"],
+                "medium_risk_datasets": ["peps", "crime"],
+                "match_threshold": 0.8
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "ai_decision_matrix": {
+    "query_patterns": {
+      "stock_price_current": {
+        "primary_api": "alpha_vantage",
+        "function": "GLOBAL_QUOTE",
+        "fallback_api": "marketstack",
+        "confidence_required": 0.8
+      },
+      "stock_price_historical": {
+        "primary_api": "marketstack",
+        "function": "eod",
+        "fallback_api": "alpha_vantage",
+        "confidence_required": 0.8
+      },
+      "crypto_price": {
+        "primary_api": "coingecko",
+        "function": "simple_price",
+        "no_fallback": true,
+        "confidence_required": 0.9
+      },
+      "news_search": {
+        "primary_api": "news_api",
+        "function": "everything",
+        "enhancement": "add_financial_keywords",
+        "confidence_required": 0.7
+      },
+      "economic_data": {
+        "primary_api": "fred",
+        "function": "series_observations",
+        "preprocessing": "resolve_series_id",
+        "confidence_required": 0.85
+      },
+      "compliance_screening": {
+        "primary_api": "opensanctions",
+        "function": "search",
+        "risk_assessment": true,
+        "confidence_required": 0.95
+      }
+    },
+    "multi_api_scenarios": {
+      "stock_analysis_complete": [
+        {"api": "alpha_vantage", "function": "GLOBAL_QUOTE"},
+        {"api": "news_api", "function": "everything", "params": {"q": "{symbol} stock"}},
+        {"api": "alpha_vantage", "function": "RSI"}
+      ],
+      "market_overview": [
+        {"api": "marketstack", "function": "eod", "params": {"symbols": "SPY,QQQ,DIA"}},
+        {"api": "news_api", "function": "top_headlines", "params": {"category": "business"}},
+        {"api": "fred", "function": "series_observations", "params": {"series_id": "UNRATE"}}
+      ],
+      "crypto_market_analysis": [
+        {"api": "coingecko", "function": "simple_price", "params": {"ids": "bitcoin,ethereum"}},
+        {"api": "coingecko", "function": "trending"},
+        {"api": "news_api", "function": "everything", "params": {"q": "cryptocurrency OR bitcoin"}}
+      ]
+    }
+  },
+  "error_handling": {
+    "rate_limit_exceeded": {
+      "action": "use_fallback_api",
+      "cache_duration": 300,
+      "notify_user": true
+    },
+    "api_unavailable": {
+      "action": "use_cached_data",
+      "max_cache_age": 3600,
+      "fallback_to_mock": true
+    },
+    "invalid_parameters": {
+      "action": "suggest_corrections",
+      "use_fuzzy_matching": true,
+      "confidence_threshold": 0.6
+    },
+    "no_data_found": {
+      "action": "broaden_search",
+      "suggest_alternatives": true,
+      "explain_to_user": true
+    }
+  }
+}

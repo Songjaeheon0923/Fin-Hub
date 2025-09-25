@@ -64,6 +64,10 @@ test: ## Run all tests
 	@echo "Running all tests..."
 	@python -m pytest tests/ -v
 
+test-apis: ## Test all API integrations (Alpha Vantage, News, CoinGecko, FRED, OpenSanctions, MarketStack)
+	@echo "Testing all API integrations..."
+	@python tests/test_all_apis_simple.py
+
 test-unit: ## Run unit tests
 	@python -m pytest tests/unit/ -v
 
