@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Service Discovery
   consul:
-    image: consul:1.17
+    image: consul:1.15.3
     container_name: fin-hub-consul
     ports:
       - "8500:8500"
@@ -11,15 +11,18 @@ services:
       - ./infrastructure/consul/config:/consul/config
       - consul_data:/consul/data
     command: >
+      sh -c "
+      apk add --no-cache curl &&
       consul agent -server -bootstrap -ui
       -client=0.0.0.0
       -config-dir=/consul/config
+      "
     environment:
       - CONSUL_BIND_INTERFACE=eth0
     networks:
       - fin-hub-network
     healthcheck:
-      test: ["CMD", "consul", "kv", "get", "service/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -90,8 +93,8 @@ services:
   # Hub Server
   hub-server:
     build:
-      context: ./services/hub-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/hub-server/Dockerfile
       target: production
     container_name: fin-hub-server
     ports:
@@ -123,21 +126,26 @@ services:
   # Market Analysis Spoke
   market-spoke:
     build:
-      context: ./services/market-spoke
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/market-spoke/Dockerfile
       target: production
     container_name: fin-hub-market
     ports:
-      - "8001:8000"
+      - "8001:8001"
     environment:
       - ENVIRONMENT=production
-      - HUB_URL=http://hub-server:8000
+      - HUB_HOST=hub-server
+      - HUB_PORT=8000
       - CONSUL_HOST=consul
       - CONSUL_PORT=8500
       - SERVICE_NAME=market-spoke
-      - SERVICE_PORT=8000
+      - SERVICE_PORT=8001
+      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY:-demo}
+      - FRED_API_KEY=${FRED_API_KEY:-demo}
+      - NEWS_API_KEY=${NEWS_API_KEY:-demo}
     volumes:
       - ./services/market-spoke/logs:/app/logs
+      - ./shared:/app/shared
     depends_on:
       hub-server:
         condition: service_healthy
@@ -146,7 +154,7 @@ services:
     networks:
       - fin-hub-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -155,19 +163,19 @@ services:
   # Risk Management Spoke
   risk-spoke:
     build:
-      context: ./services/risk-spoke
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/risk-spoke/Dockerfile
       target: production
     container_name: fin-hub-risk
     ports:
-      - "8002:8000"
+      - "8002:8002"
     environment:
       - ENVIRONMENT=production
       - HUB_URL=http://hub-server:8000
       - CONSUL_HOST=consul
       - CONSUL_PORT=8500
       - SERVICE_NAME=risk-spoke
-      - SERVICE_PORT=8000
+      - SERVICE_PORT=8002
     volumes:
       - ./services/risk-spoke/logs:/app/logs
       - ./services/risk-spoke/models:/app/models
@@ -179,7 +187,7 @@ services:
     networks:
       - fin-hub-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -188,19 +196,19 @@ services:
   # Portfolio Management Spoke
   pfolio-spoke:
     build:
-      context: ./services/pfolio-spoke
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/pfolio-spoke/Dockerfile
       target: production
     container_name: fin-hub-pfolio
     ports:
-      - "8003:8000"
+      - "8003:8003"
     environment:
       - ENVIRONMENT=production
       - HUB_URL=http://hub-server:8000
       - CONSUL_HOST=consul
       - CONSUL_PORT=8500
       - SERVICE_NAME=pfolio-spoke
-      - SERVICE_PORT=8000
+      - SERVICE_PORT=8003
     volumes:
       - ./services/pfolio-spoke/logs:/app/logs
     depends_on:
@@ -211,7 +219,7 @@ services:
     networks:
       - fin-hub-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
       interval: 30s
       timeout: 10s
       retries: 3

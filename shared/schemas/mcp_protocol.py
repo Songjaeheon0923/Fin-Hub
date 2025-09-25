@@ -102,8 +102,18 @@ class Tool(BaseModel):
     input_schema: ToolInputSchema = Field(description="Input parameter schema")
 
 
-class ToolsListResponse(BaseModel):
+class ListToolsRequest(BaseModel):
+    """Tools list request"""
+    pass
+
+
+class ListToolsResponse(BaseModel):
     """Tools list response"""
+    tools: List[Tool] = Field(description="Available tools")
+
+
+class ToolsListResponse(BaseModel):
+    """Tools list response (alias for backward compatibility)"""
     tools: List[Tool] = Field(description="Available tools")
 
 
@@ -117,6 +127,23 @@ class ToolResult(BaseModel):
     """Tool execution result"""
     content: List[Dict[str, Any]] = Field(description="Tool result content")
     is_error: Optional[bool] = Field(default=False, description="Whether result is an error")
+
+
+class CallToolRequest(BaseModel):
+    """Tool call request (alias for backward compatibility)"""
+    name: str = Field(description="Tool name to execute")
+    arguments: Dict[str, Any] = Field(description="Tool arguments")
+
+
+class CallToolResult(BaseModel):
+    """Tool call result (alias for backward compatibility)"""
+    content: List[Dict[str, Any]] = Field(description="Tool result content")
+    is_error: Optional[bool] = Field(default=False, description="Whether result is an error")
+
+
+class CallToolResponse(BaseModel):
+    """Tool call response (alias for backward compatibility)"""
+    result: CallToolResult = Field(description="Tool execution result")
 
 
 class ToolCallResponse(BaseModel):

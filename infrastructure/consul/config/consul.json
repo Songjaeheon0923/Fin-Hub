@@ -31,12 +31,5 @@
       }
     }
   ],
-  "checks": [
-    {
-      "name": "Consul Health",
-      "args": ["consul", "kv", "get", "service/health"],
-      "interval": "30s",
-      "timeout": "10s"
-    }
-  ]
+  "checks": []
 }

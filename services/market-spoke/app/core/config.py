@@ -3,23 +3,28 @@ Market Spoke Service Configuration
 """
 
 import os
+import sys
 from typing import List, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-import sys
+# Add shared directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
 
-from shared.config.base import BaseServiceConfig
+from shared.config.base import SpokeServiceConfig
 
 
-class MarketSpokeConfig(BaseServiceConfig):
+class MarketSpokeConfig(SpokeServiceConfig):
     """Market Spoke Service configuration"""
 
     # Service identification
     service_name: str = "market-spoke"
     service_id: str = Field(default_factory=lambda: f"market-spoke-{os.getenv('HOSTNAME', 'local')}")
     version: str = "1.0.0"
+
+    # Service network settings
+    host: str = Field(default="0.0.0.0", alias="HOST")
+    port: int = Field(default=8001, alias="PORT")
 
     # Market data providers
     alpha_vantage_api_key: Optional[str] = Field(default=None, alias="ALPHA_VANTAGE_API_KEY")
@@ -49,6 +54,8 @@ class MarketSpokeConfig(BaseServiceConfig):
     max_historical_days: int = Field(default=365, alias="MAX_HISTORICAL_DAYS")
 
     # Hub server connection
+    hub_host: str = Field(default="hub-server", alias="HUB_HOST")
+    hub_port: int = Field(default=8000, alias="HUB_PORT")
     hub_server_url: str = Field(default="http://hub-server:8000", alias="HUB_SERVER_URL")
 
     class Config:
