@@ -1,0 +1,26 @@
+{
+  "download_date": "2025-09-27T17:08:48.277133",
+  "total_coins_requested": 20,
+  "successful_downloads": 4,
+  "failed_downloads": [
+    "binancecoin",
+    "solana",
+    "usd-coin",
+    "dogecoin",
+    "staked-ether",
+    "tron",
+    "cardano",
+    "wrapped-steth",
+    "ethena-usde",
+    "chainlink",
+    "wrapped-beacon-eth",
+    "wrapped-bitcoin",
+    "figure-heloc",
+    "avalanche-2",
+    "hyperliquid",
+    "stellar"
+  ],
+  "data_source": "CoinGecko API",
+  "data_period": "365 days",
+  "currency": "USD"
+}
