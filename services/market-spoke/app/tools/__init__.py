@@ -1,26 +1,39 @@
 """
 Market Analysis Tools
-Enhanced with Phase 1 API integrations (Polygon, Twelve Data, Finnhub, FRED)
+Enhanced with Phase 1 API integrations and Unified API Manager
 """
 
-from .technical_analysis import TechnicalAnalysisTool
-from .sentiment_analyzer import SentimentAnalyzerTool
-from .market_screener import MarketScreenerTool
-from .enhanced_market_tools import (
-    EnhancedMarketDataTool,
-    PerformanceMonitoringTool,
-    create_enhanced_market_tools,
-    get_comprehensive_market_analysis,
-    get_economic_dashboard
-)
+# Import only existing modules
+try:
+    from .price_analyzer import PriceAnalyzer
+    from .volatility_predictor import VolatilityPredictor
+    from .sentiment_analyzer import SentimentAnalyzer
+except ImportError:
+    pass
+
+# Import unified API tools
+try:
+    from .unified_market_data import (
+        UnifiedMarketDataTool,
+        StockQuoteTool,
+        CryptoPriceTool,
+        FinancialNewsTool,
+        EconomicIndicatorTool,
+        MarketOverviewTool,
+        APIStatusTool
+    )
+except ImportError:
+    pass
 
 __all__ = [
-    'TechnicalAnalysisTool',
-    'SentimentAnalyzerTool',
-    'MarketScreenerTool',
-    'EnhancedMarketDataTool',
-    'PerformanceMonitoringTool',
-    'create_enhanced_market_tools',
-    'get_comprehensive_market_analysis',
-    'get_economic_dashboard'
+    'PriceAnalyzer',
+    'VolatilityPredictor',
+    'SentimentAnalyzer',
+    'UnifiedMarketDataTool',
+    'StockQuoteTool',
+    'CryptoPriceTool',
+    'FinancialNewsTool',
+    'EconomicIndicatorTool',
+    'MarketOverviewTool',
+    'APIStatusTool'
 ]

@@ -8,12 +8,22 @@ CLAUDE.md
 .claude/
 claude-sessions/
 
+# Claude Desktop Config (contains API keys)
+claude_desktop_config.json
+
 # Environment variables
 .env
 .env.local
 .env.development
 .env.test
 .env.production
+
+# API Keys and Secrets
+*_API_KEY*
+*_SECRET*
+*credentials*
+*.pem
+*.key
 
 # Python
 __pycache__/
@@ -62,6 +72,15 @@ logs/
 *.sqlite
 *.sqlite3
 
+# Data files (large datasets)
+data/stock-data/*.csv
+!data/stock-data/_metadata.json
+!data/stock-data/sp500_tickers.json
+data/crypto-cache/*.json
+data/gekko-history/
+data/api_test_results.json
+data/validation_report.json
+
 # Docker
 .dockerignore
 docker-compose.override.yml
@@ -79,6 +98,8 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+*-cache/
+*.cache
 
 # Testing
 .coverage
@@ -88,6 +109,13 @@ Thumbs.db
 coverage.xml
 *.cover
 .hypothesis/
+*_test_data.json
+test_mcp_client.py
+
+# Test Results and Reports
+data/api_test_results.json
+data/validation_report.json
+data/*_test_*.json
 
 # Alembic
 alembic.ini.bak

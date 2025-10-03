@@ -7,6 +7,13 @@ import sys
 import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List
+from pathlib import Path
+
+# Load environment variables from project root
+from dotenv import load_dotenv
+project_root = Path(__file__).parent.parent.parent.parent
+dotenv_path = project_root / '.env'
+load_dotenv(dotenv_path)
 
 # Add shared directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -29,6 +36,15 @@ from app.services.hub_registration import HubRegistrationService
 from app.tools.price_analyzer import PriceAnalyzer
 from app.tools.volatility_predictor import VolatilityPredictor
 from app.tools.sentiment_analyzer import SentimentAnalyzer
+from app.tools.unified_market_data import (
+    UnifiedMarketDataTool,
+    StockQuoteTool,
+    CryptoPriceTool,
+    FinancialNewsTool,
+    EconomicIndicatorTool,
+    MarketOverviewTool,
+    APIStatusTool
+)
 
 # Initialize logger
 logger = setup_logging("market-spoke")
@@ -36,16 +52,34 @@ logger = setup_logging("market-spoke")
 # Global configuration
 config = MarketSpokeConfig()
 
-# Initialize tools
+# Initialize existing tools
 price_analyzer = PriceAnalyzer()
 volatility_predictor = VolatilityPredictor()
 sentiment_analyzer = SentimentAnalyzer()
 
+# Initialize new unified API tools
+unified_data_tool = UnifiedMarketDataTool()
+stock_quote_tool = StockQuoteTool()
+crypto_price_tool = CryptoPriceTool()
+news_tool = FinancialNewsTool()
+economic_tool = EconomicIndicatorTool()
+overview_tool = MarketOverviewTool()
+api_status_tool = APIStatusTool()
+
 # Tool registry
 TOOLS_REGISTRY = {
+    # Original tools
     "market.get_price": price_analyzer,
     "market.predict_volatility": volatility_predictor,
-    "market.analyze_sentiment": sentiment_analyzer
+    "market.analyze_sentiment": sentiment_analyzer,
+    # New unified API tools
+    "market.get_unified_data": unified_data_tool,
+    "market.get_stock_quote": stock_quote_tool,
+    "market.get_crypto_price": crypto_price_tool,
+    "market.get_financial_news": news_tool,
+    "market.get_economic_indicator": economic_tool,
+    "market.get_overview": overview_tool,
+    "market.get_api_status": api_status_tool
 }
 
 
@@ -68,8 +102,8 @@ async def lifespan(app: FastAPI):
 
     # Initialize Consul client
     consul_client = ConsulClient(
-        host=config.consul_host,
-        port=config.consul_port
+        consul_host=config.consul_host,
+        consul_port=config.consul_port
     )
     app.state.consul = consul_client
 
@@ -152,75 +186,60 @@ async def mcp_endpoint(request: Dict[str, Any]):
         logger.info(f"MCP request: {method}")
 
         if method == "initialize":
-            # Parse initialize request
-            init_request = InitializeRequest(**params)
-
-            # Create response
-            response = InitializeResponse(
-                protocolVersion="2024-11-05",
-                capabilities={
+            # Create response without validation (accept both camelCase and snake_case)
+            response = {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {
                     "tools": {},
                     "logging": {}
                 },
-                serverInfo={
+                "serverInfo": {
                     "name": "market-spoke",
                     "version": "1.0.0"
                 }
-            )
+            }
 
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": response.dict()
+                "result": response
             }
 
         elif method == "tools/list":
-            # Parse list tools request
-            list_request = ListToolsRequest(**params) if params else ListToolsRequest()
-
             # Get tools list
             tools = []
             for tool_id in TOOLS_REGISTRY:
                 tool_handler = TOOLS_REGISTRY[tool_id]
                 tool_info = await tool_handler.get_tool_info()
-                tools.append(Tool(**tool_info))
-
-            response = ListToolsResponse(tools=tools)
+                tools.append(tool_info)
 
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": response.dict()
+                "result": {"tools": tools}
             }
 
         elif method == "tools/call":
-            # Parse call tool request
-            call_request = CallToolRequest(**params)
-
             # Get tool handler
-            tool_id = call_request.name
+            tool_id = params.get("name")
             if tool_id not in TOOLS_REGISTRY:
                 raise ValueError(f"Tool not found: {tool_id}")
 
             tool_handler = TOOLS_REGISTRY[tool_id]
 
             # Execute tool
-            result = await tool_handler.execute(call_request.arguments or {})
+            result = await tool_handler.execute(params.get("arguments", {}))
 
             # Create response
-            tool_result = CallToolResult(
-                content=[{
-                    "type": "text",
-                    "text": json.dumps(result, indent=2)
-                }]
-            )
-
-            response = CallToolResponse(content=tool_result.content)
-
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": response.dict()
+                "result": {
+                    "content": [{
+                        "type": "text",
+                        "text": json.dumps(result, indent=2)
+                    }]
+                }
             }
 
         else:
