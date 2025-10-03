@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 Risk Spoke MCP Server - Quantitative Risk Management
-Provides VaR, risk metrics, and portfolio analysis tools
+Provides 8 comprehensive risk analysis tools:
+- VaR Calculator, Risk Metrics, Portfolio Risk
+- Stress Testing, Tail Risk Analysis, Greeks Calculator
+- Compliance Checker, Risk Dashboard
 """
 import sys
 import os
@@ -42,23 +45,38 @@ import mcp.types as types
 from app.tools.var_calculator import VaRCalculatorTool
 from app.tools.risk_metrics import RiskMetricsTool
 from app.tools.portfolio_risk import PortfolioRiskTool
+from app.tools.stress_testing import StressTestingTool
+from app.tools.tail_risk import TailRiskTool
+from app.tools.greeks_calculator import GreeksCalculatorTool
+from app.tools.compliance_checker import ComplianceCheckerTool
+from app.tools.risk_dashboard import RiskDashboardTool
 
 # Create MCP server
 server = Server("fin-hub-risk")
 
-# Initialize tool instances
+# Initialize tool instances (8 tools total)
 var_tool = VaRCalculatorTool()
 metrics_tool = RiskMetricsTool()
 portfolio_tool = PortfolioRiskTool()
+stress_tool = StressTestingTool()
+tail_tool = TailRiskTool()
+greeks_tool = GreeksCalculatorTool()
+compliance_tool = ComplianceCheckerTool()
+dashboard_tool = RiskDashboardTool()
 
 
 @server.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
-    """List available risk management tools"""
+    """List available risk management tools (8 tools)"""
     # Get tool info from each tool instance
     var_info = await var_tool.get_tool_info()
     metrics_info = await metrics_tool.get_tool_info()
     portfolio_info = await portfolio_tool.get_tool_info()
+    stress_info = await stress_tool.get_tool_info()
+    tail_info = await tail_tool.get_tool_info()
+    greeks_info = await greeks_tool.get_tool_info()
+    compliance_info = await compliance_tool.get_tool_info()
+    dashboard_info = await dashboard_tool.get_tool_info()
 
     return [
         types.Tool(
@@ -75,6 +93,31 @@ async def handle_list_tools() -> list[types.Tool]:
             name=portfolio_info["name"],
             description=portfolio_info["description"],
             inputSchema=portfolio_info["inputSchema"]
+        ),
+        types.Tool(
+            name=stress_info["name"],
+            description=stress_info["description"],
+            inputSchema=stress_info["inputSchema"]
+        ),
+        types.Tool(
+            name=tail_info["name"],
+            description=tail_info["description"],
+            inputSchema=tail_info["inputSchema"]
+        ),
+        types.Tool(
+            name=greeks_info["name"],
+            description=greeks_info["description"],
+            inputSchema=greeks_info["inputSchema"]
+        ),
+        types.Tool(
+            name=compliance_info["name"],
+            description=compliance_info["description"],
+            inputSchema=compliance_info["inputSchema"]
+        ),
+        types.Tool(
+            name=dashboard_info["name"],
+            description=dashboard_info["description"],
+            inputSchema=dashboard_info["inputSchema"]
         )
     ]
 
@@ -83,7 +126,7 @@ async def handle_list_tools() -> list[types.Tool]:
 async def handle_call_tool(
     name: str, arguments: dict | None
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
-    """Handle tool execution"""
+    """Handle tool execution (8 tools)"""
     import json
 
     arguments = arguments or {}
@@ -96,6 +139,16 @@ async def handle_call_tool(
             result = await metrics_tool.execute(arguments)
         elif name == "risk.analyze_portfolio":
             result = await portfolio_tool.execute(arguments)
+        elif name == "risk.stress_test":
+            result = await stress_tool.execute(arguments)
+        elif name == "risk.analyze_tail_risk":
+            result = await tail_tool.execute(arguments)
+        elif name == "risk.calculate_greeks":
+            result = await greeks_tool.execute(arguments)
+        elif name == "risk.check_compliance":
+            result = await compliance_tool.execute(arguments)
+        elif name == "risk.generate_dashboard":
+            result = await dashboard_tool.execute(arguments)
         else:
             raise ValueError(f"Unknown tool: {name}")
 
