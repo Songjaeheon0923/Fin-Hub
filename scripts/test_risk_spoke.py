@@ -177,11 +177,11 @@ async def test_risk_metrics():
 
     success = "error" not in result and "beta" in result.get("metrics", {})
     if success:
-        beta = result["metrics"]["beta"]["beta"]["value"]
+        beta = result["metrics"]["beta"]["value"]
         alpha = result["metrics"]["alpha"]["annual_percent"]
         details = f"Beta: {beta:.2f}, Alpha: {alpha:.2f}%"
     else:
-        details = result.get("error", "Unknown error")
+        details = result.get("error", result.get("warning", "Unknown error"))
 
     print_result("Beta & Alpha", success, details)
     results.append(success)

@@ -480,7 +480,7 @@ class RiskMetricsTool:
             interpretation["recommendation"].append("High drawdown risk - consider position sizing or hedging")
 
         if "beta" in metrics:
-            beta_val = metrics["beta"]["beta"]["value"]
+            beta_val = metrics["beta"]["value"]
             if beta_val > 1.5:
                 interpretation["recommendation"].append("High market sensitivity - diversification recommended")
 
