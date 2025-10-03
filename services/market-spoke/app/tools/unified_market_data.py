@@ -59,7 +59,21 @@ class UnifiedMarketDataTool:
 
     async def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """Execute the tool with given arguments"""
-        data_type = arguments.get("data_type")
+        # Support both 'data_type' and 'query_type' for compatibility
+        data_type = arguments.get("data_type") or arguments.get("query_type")
+
+        # Map query_type values to data_type values
+        type_mapping = {
+            "stock_quote": "stock",
+            "crypto_price": "crypto",
+            "news": "news",
+            "economic": "economic",
+            "overview": "overview"
+        }
+
+        # Convert query_type format to data_type format
+        if data_type in type_mapping:
+            data_type = type_mapping[data_type]
 
         # Create API manager context
         async with UnifiedAPIManager() as api_manager:
@@ -83,7 +97,8 @@ class UnifiedMarketDataTool:
                 return {"articles": result} if result else {"error": "Failed to get news"}
 
             elif data_type == "economic":
-                series_id = arguments.get("series_id", "GDP")
+                # Support both 'series_id' and 'indicator' for compatibility
+                series_id = arguments.get("series_id") or arguments.get("indicator", "GDP")
                 limit = arguments.get("limit", 10)
                 result = await api_manager.get_economic_indicator(series_id, limit)
                 return result if result else {"error": f"Failed to get economic data for {series_id}"}

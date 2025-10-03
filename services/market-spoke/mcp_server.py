@@ -57,6 +57,12 @@ from app.tools.unified_market_data import (
     MarketOverviewTool,
     APIStatusTool
 )
+from app.tools.technical_analysis import TechnicalAnalysisTool
+from app.tools.pattern_recognition import PatternRecognitionTool
+from app.tools.anomaly_detection import AnomalyDetectionTool
+from app.tools.stock_comparison import StockComparisonTool
+from app.tools.sentiment_analysis import SentimentAnalysisTool
+from app.tools.alert_system import AlertSystemTool
 
 # Create MCP server
 server = Server("fin-hub-market")
@@ -69,6 +75,12 @@ news_tool = FinancialNewsTool()
 economic_tool = EconomicIndicatorTool()
 overview_tool = MarketOverviewTool()
 status_tool = APIStatusTool()
+technical_tool = TechnicalAnalysisTool()
+pattern_tool = PatternRecognitionTool()
+anomaly_tool = AnomalyDetectionTool()
+comparison_tool = StockComparisonTool()
+sentiment_tool = SentimentAnalysisTool()
+alert_tool = AlertSystemTool()
 
 
 @server.list_tools()
@@ -178,6 +190,153 @@ async def handle_list_tools() -> list[types.Tool]:
                 "type": "object",
                 "properties": {}
             }
+        ),
+        types.Tool(
+            name="technical_analysis",
+            description="Perform comprehensive technical analysis with indicators like RSI, MACD, Bollinger Bands, and Moving Averages",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., AAPL, MSFT, GOOGL)"
+                    },
+                    "indicators": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["rsi", "macd", "bollinger", "sma", "ema", "all"]
+                        },
+                        "description": "List of indicators to calculate (default: all)"
+                    },
+                    "period": {
+                        "type": "integer",
+                        "description": "Number of days for analysis (default: 30)"
+                    }
+                },
+                "required": ["symbol"]
+            }
+        ),
+        types.Tool(
+            name="pattern_recognition",
+            description="Detect chart patterns, support/resistance levels, and trend analysis",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., AAPL, MSFT)"
+                    },
+                    "period": {
+                        "type": "integer",
+                        "description": "Number of days for analysis (default: 60)"
+                    },
+                    "patterns": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["trend", "support_resistance", "head_shoulders", "double_top_bottom", "triangle", "all"]
+                        },
+                        "description": "Patterns to detect (default: all)"
+                    }
+                },
+                "required": ["symbol"]
+            }
+        ),
+        types.Tool(
+            name="anomaly_detection",
+            description="Detect price and volume anomalies using statistical methods (Z-Score, IQR, Volatility)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., AAPL, MSFT)"
+                    },
+                    "period": {
+                        "type": "integer",
+                        "description": "Number of days for analysis (default: 90)"
+                    },
+                    "sensitivity": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high"],
+                        "description": "Detection sensitivity (default: medium)"
+                    }
+                },
+                "required": ["symbol"]
+            }
+        ),
+        types.Tool(
+            name="stock_comparison",
+            description="Compare multiple stocks for correlation, performance, and relative analysis",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbols": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of stock symbols to compare (2-10 stocks)"
+                    },
+                    "period": {
+                        "type": "integer",
+                        "description": "Number of days for analysis (default: 90)"
+                    },
+                    "metrics": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["correlation", "performance", "volatility", "risk_return", "all"]
+                        },
+                        "description": "Metrics to compare (default: all)"
+                    }
+                },
+                "required": ["symbols"]
+            }
+        ),
+        types.Tool(
+            name="sentiment_analysis",
+            description="Enhanced sentiment analysis combining news sentiment with market data scoring (1-5 scale)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., AAPL, MSFT)"
+                    },
+                    "query": {
+                        "type": "string",
+                        "description": "Optional search query (default: company name from symbol)"
+                    },
+                    "days": {
+                        "type": "integer",
+                        "description": "Number of days to analyze (default: 7)"
+                    }
+                },
+                "required": ["symbol"]
+            }
+        ),
+        types.Tool(
+            name="alert_system",
+            description="Monitor stocks and create alerts for price movements, breakouts, and pattern detection",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., AAPL, MSFT)"
+                    },
+                    "alert_type": {
+                        "type": "string",
+                        "enum": ["price_target", "percent_change", "volume_spike", "breakout", "support_resistance", "volatility", "all"],
+                        "description": "Type of alert to check"
+                    },
+                    "thresholds": {
+                        "type": "object",
+                        "description": "Alert thresholds"
+                    }
+                },
+                "required": ["symbol", "alert_type"]
+            }
         )
     ]
 
@@ -206,6 +365,18 @@ async def handle_call_tool(
             result = await overview_tool.execute(arguments)
         elif name == "api_status":
             result = await status_tool.execute(arguments)
+        elif name == "technical_analysis":
+            result = await technical_tool.execute(arguments)
+        elif name == "pattern_recognition":
+            result = await pattern_tool.execute(arguments)
+        elif name == "anomaly_detection":
+            result = await anomaly_tool.execute(arguments)
+        elif name == "stock_comparison":
+            result = await comparison_tool.execute(arguments)
+        elif name == "sentiment_analysis":
+            result = await sentiment_tool.execute(arguments)
+        elif name == "alert_system":
+            result = await alert_tool.execute(arguments)
         else:
             raise ValueError(f"Unknown tool: {name}")
 

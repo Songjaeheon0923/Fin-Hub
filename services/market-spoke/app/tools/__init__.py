@@ -1,6 +1,6 @@
 """
 Market Analysis Tools
-Enhanced with Phase 1 API integrations and Unified API Manager
+Enhanced with Phase 1 API integrations and Advanced Analysis Tools
 """
 
 # Import only existing modules
@@ -25,6 +25,17 @@ try:
 except ImportError:
     pass
 
+# Import advanced analysis tools
+try:
+    from .technical_analysis import TechnicalAnalysisTool
+    from .pattern_recognition import PatternRecognitionTool
+    from .anomaly_detection import AnomalyDetectionTool
+    from .stock_comparison import StockComparisonTool
+    from .sentiment_analysis import SentimentAnalysisTool
+    from .alert_system import AlertSystemTool
+except ImportError:
+    pass
+
 __all__ = [
     'PriceAnalyzer',
     'VolatilityPredictor',
@@ -35,5 +46,11 @@ __all__ = [
     'FinancialNewsTool',
     'EconomicIndicatorTool',
     'MarketOverviewTool',
-    'APIStatusTool'
+    'APIStatusTool',
+    'TechnicalAnalysisTool',
+    'PatternRecognitionTool',
+    'AnomalyDetectionTool',
+    'StockComparisonTool',
+    'SentimentAnalysisTool',
+    'AlertSystemTool'
 ]
