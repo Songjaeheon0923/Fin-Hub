@@ -2,13 +2,13 @@
 
 ## 📊 현재 상태 요약 (2025-10-04)
 
-Fin-Hub는 **Market Spoke + Risk Spoke MCP 서버 완료** 상태로, Claude Desktop과 직접 연동 가능한 **프로덕션 준비 완료 금융 AI 플랫폼**입니다.
+Fin-Hub는 **Market Spoke + Risk Spoke + Portfolio Spoke MCP 서버 완료** 상태로, Claude Desktop과 직접 연동 가능한 **프로덕션 준비 완료 금융 AI 플랫폼**입니다.
 
-**전체 프로젝트 완성도**: ~75%
+**전체 프로젝트 완성도**: ~85%
 - ✅ Market Spoke MCP: 100% (프로덕션 준비, Claude Desktop 연동 완료)
 - ✅ Risk Spoke MCP: 100% (프로덕션 준비, 전문 리스크 관리 도구)
+- ✅ Portfolio Spoke MCP: 100% (프로덕션 준비, 포트폴리오 관리 도구)
 - 🔄 Hub Server MCP: 50% (기본 MCP 서버 생성, 실제 기능 미구현)
-- 🔄 Portfolio Spoke MCP: 50% (기본 MCP 서버 생성, 실제 기능 미구현)
 - 🔄 FastAPI 서비스: 30% (기본 구조만)
 
 
@@ -102,21 +102,70 @@ Fin-Hub는 **Market Spoke + Risk Spoke MCP 서버 완료** 상태로, Claude Des
 **코드**: ~4,453 lines (8개 도구)
 **규제 준수**: Basel III, DORA, SR 21-14
 
-### 💼 fin-hub-portfolio (3개 도구) 🔄 50% 완료
+### 💼 fin-hub-portfolio (8개 도구) ✅ 100% 완료
 
-#### 1. optimize_portfolio
-- 포트폴리오 최적화 (기본 구현만)
-- **주의**: 균등 분산만 지원, 실제 최적화 알고리즘 미구현
+#### 1. portfolio_optimizer
+- Mean-Variance Optimization (Markowitz)
+- Hierarchical Risk Parity (HRP)
+- Risk Parity (inverse volatility)
+- Max Sharpe / Min Volatility
+- Efficient Frontier 생성
+- Scipy 기반 구현 (외부 의존성 최소화)
 
-#### 2. rebalance_portfolio
-- 리밸런싱 계산 (기본 구현)
-- 목표 배분 대비 매수/매도 액션 제공
+#### 2. portfolio_rebalancer
+- Threshold-based rebalancing (드리프트 기반)
+- Periodic rebalancing (주기적)
+- Tax-aware strategy (세금 고려)
+- Transaction cost optimization
+- Trade list 생성 (매수/매도 지시)
 
-#### 3. analyze_performance
-- 포트폴리오 성과 분석 (기본 구현)
-- 종목별 손익, 총 수익률 계산
+#### 3. performance_analyzer
+- Returns (Total, Annualized, YTD, MTD)
+- Risk metrics (Sharpe, Sortino, Calmar, Max Drawdown)
+- Benchmark comparison (Alpha, Beta, Information Ratio)
+- Attribution analysis (종목별 기여도)
 
-**상태**: 🔄 MCP 서버 생성됨, 실제 기능 구현 필요
+#### 4. backtester
+- Momentum strategy (top N by returns)
+- Mean Reversion strategy (oversold/overbought)
+- Equal Weight strategy
+- Transaction costs & slippage
+- Equity curve & performance metrics
+
+#### 5. factor_analyzer
+- Factor calculation (Market, Size, Value, Momentum, Quality)
+- OLS regression for factor exposure
+- R-squared model fit
+- Alpha decomposition
+- Factor attribution
+
+#### 6. asset_allocator
+- Strategic allocation (장기 정책 기반)
+- Tactical allocation (단기 모멘텀 기반)
+- Diversification analysis (HHI, 효과적 자산 수)
+- Correlation analysis (자산 간 상관관계)
+- Rebalancing check (드리프트 감지)
+
+#### 7. tax_optimizer
+- Tax Loss Harvesting (손실 실현 최적화)
+- Wash Sale detection (30일 규칙 위반 감지)
+- LTCG vs STCG (장기/단기 자본 이득 분류)
+- Tax benefit calculation (세금 절감 예측)
+- Actionable recommendations
+
+#### 8. portfolio_dashboard
+- Health score (0-100 건강도 점수)
+- Performance metrics (수익률, Sharpe, Sortino)
+- Risk assessment (변동성, Beta, VaR)
+- Diversification (집중도 리스크)
+- Rebalancing status (재조정 필요 여부)
+- Tax efficiency (세금 효율성)
+- Alerts & Recommendations
+
+**상태**: ✅ 프로덕션 준비 완료, 전문가급 포트폴리오 관리
+**테스트**: 12/12 통과 (100%)
+**코드**: ~4,800 lines (8개 도구)
+**방법론**: Modern Portfolio Theory, Factor Models, Tax-aware Strategies
 
 ### 🎯 fin-hub (2개 도구) 🔄 50% 완료
 
@@ -133,13 +182,14 @@ Fin-Hub는 **Market Spoke + Risk Spoke MCP 서버 완료** 상태로, Claude Des
 ---
 
 **MCP 서버 완성도 요약**:
-- ✅ **fin-hub-market**: 100% (프로덕션 준비)
-- ✅ **fin-hub-risk**: 100% (프로덕션 준비)
-- 🔄 **fin-hub-portfolio**: 50% (MCP 서버만, 기능 미구현)
+- ✅ **fin-hub-market**: 100% (프로덕션 준비, 13개 도구)
+- ✅ **fin-hub-risk**: 100% (프로덕션 준비, 8개 도구)
+- ✅ **fin-hub-portfolio**: 100% (프로덕션 준비, 8개 도구)
 - 🔄 **fin-hub**: 50% (MCP 서버만, 기능 미구현)
 
+**총 MCP 도구**: 29개 (Market 13개 + Risk 8개 + Portfolio 8개)
 **Claude Desktop 연동**: ✅ 4개 서버 모두 연결 가능
-**실사용 가능**: ✅ Market Spoke + Risk Spoke 완전 작동
+**실사용 가능**: ✅ Market + Risk + Portfolio Spoke 완전 작동
 
 ---
 

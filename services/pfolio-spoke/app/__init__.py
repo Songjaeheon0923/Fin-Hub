@@ -1,1 +1,0 @@
-# Portfolio Spoke MCP Server
