@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Risk Spoke MCP Server - MCP SDK Implementation
+Risk Spoke MCP Server - Quantitative Risk Management
+Provides VaR, risk metrics, and portfolio analysis tools
 """
 import sys
 import os
@@ -8,13 +9,14 @@ from pathlib import Path
 import logging
 
 # Add project root to path
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 # Load environment variables
 from dotenv import load_dotenv
-dotenv_path = project_root / '.env'
-load_dotenv(dotenv_path)
+dotenv_path = project_root.parent / '.env'
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
 
 # Configure logging to stderr ONLY (MCP requires stdout for protocol)
 logging.basicConfig(
@@ -36,52 +38,43 @@ from mcp.server import NotificationOptions, Server
 import mcp.server.stdio
 import mcp.types as types
 
+# Import Risk Spoke tools
+from app.tools.var_calculator import VaRCalculatorTool
+from app.tools.risk_metrics import RiskMetricsTool
+from app.tools.portfolio_risk import PortfolioRiskTool
+
 # Create MCP server
 server = Server("fin-hub-risk")
+
+# Initialize tool instances
+var_tool = VaRCalculatorTool()
+metrics_tool = RiskMetricsTool()
+portfolio_tool = PortfolioRiskTool()
 
 
 @server.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
     """List available risk management tools"""
+    # Get tool info from each tool instance
+    var_info = await var_tool.get_tool_info()
+    metrics_info = await metrics_tool.get_tool_info()
+    portfolio_info = await portfolio_tool.get_tool_info()
+
     return [
         types.Tool(
-            name="detect_anomaly",
-            description="Detect anomalies in financial data",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {"type": "number"},
-                        "description": "Array of numerical data points to analyze"
-                    },
-                    "threshold": {
-                        "type": "number",
-                        "description": "Sensitivity threshold for anomaly detection (default: 2.0)",
-                        "default": 2.0
-                    }
-                },
-                "required": ["data"]
-            }
+            name=var_info["name"],
+            description=var_info["description"],
+            inputSchema=var_info["inputSchema"]
         ),
         types.Tool(
-            name="check_compliance",
-            description="Check portfolio compliance with regulations",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "portfolio": {
-                        "type": "object",
-                        "description": "Portfolio holdings to check"
-                    },
-                    "rules": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Compliance rules to check against"
-                    }
-                },
-                "required": ["portfolio"]
-            }
+            name=metrics_info["name"],
+            description=metrics_info["description"],
+            inputSchema=metrics_info["inputSchema"]
+        ),
+        types.Tool(
+            name=portfolio_info["name"],
+            description=portfolio_info["description"],
+            inputSchema=portfolio_info["inputSchema"]
         )
     ]
 
@@ -96,42 +89,13 @@ async def handle_call_tool(
     arguments = arguments or {}
 
     try:
-        if name == "detect_anomaly":
-            data = arguments.get("data", [])
-            threshold = arguments.get("threshold", 2.0)
-
-            # Simple anomaly detection simulation
-            if not data:
-                result = {"error": "No data provided"}
-            else:
-                import statistics
-                mean = statistics.mean(data)
-                stdev = statistics.stdev(data) if len(data) > 1 else 0
-                anomalies = []
-
-                for i, value in enumerate(data):
-                    if stdev > 0 and abs(value - mean) > threshold * stdev:
-                        anomalies.append({"index": i, "value": value, "deviation": abs(value - mean) / stdev})
-
-                result = {
-                    "total_points": len(data),
-                    "anomalies_found": len(anomalies),
-                    "anomalies": anomalies,
-                    "mean": mean,
-                    "stdev": stdev
-                }
-
-        elif name == "check_compliance":
-            portfolio = arguments.get("portfolio", {})
-            rules = arguments.get("rules", [])
-
-            result = {
-                "compliant": True,
-                "checks_performed": len(rules) if rules else 0,
-                "violations": [],
-                "warnings": []
-            }
-
+        # Route to appropriate tool
+        if name == "risk.calculate_var":
+            result = await var_tool.execute(arguments)
+        elif name == "risk.calculate_metrics":
+            result = await metrics_tool.execute(arguments)
+        elif name == "risk.analyze_portfolio":
+            result = await portfolio_tool.execute(arguments)
         else:
             raise ValueError(f"Unknown tool: {name}")
 
@@ -141,9 +105,10 @@ async def handle_call_tool(
         )]
 
     except Exception as e:
+        logging.error(f"Error executing {name}: {str(e)}", exc_info=True)
         return [types.TextContent(
             type="text",
-            text=f"Error executing {name}: {str(e)}"
+            text=json.dumps({"error": f"Tool execution failed: {str(e)}"}, indent=2)
         )]
 
 

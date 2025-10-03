@@ -12,12 +12,24 @@ httpx==0.25.2
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# Machine Learning (simplified)
+# Quantitative Finance & Risk Management
 numpy==1.24.4
+pandas>=2.0.0
+scipy>=1.11.0
 scikit-learn==1.3.2
+statsmodels>=0.14.0
+
+# Risk-specific libraries
+riskfolio-lib>=5.0.0  # Portfolio optimization and risk analysis
+arch>=6.2.0  # GARCH models for volatility forecasting
+
+# MCP protocol
+mcp>=0.9.0
 
 # Utilities
 python-multipart==0.0.6
+python-dateutil>=2.8.0
+python-dotenv>=1.0.0
 
 # Development
 pytest==7.4.3
