@@ -17,7 +17,7 @@ class UnifiedMarketDataTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.get_unified_data",
+            "name": "get_unified_data",
             "description": "Get comprehensive market data from multiple sources with intelligent fallback",
             "inputSchema": {
                 "type": "object",
@@ -132,7 +132,7 @@ class StockQuoteTool:
 
     async def get_tool_info(self) -> Dict:
         return {
-            "name": "market.get_stock_quote",
+            "name": "get_stock_quote",
             "description": "Get real-time stock quote with intelligent API fallback (Finnhub -> Alpha Vantage -> MarketStack)",
             "inputSchema": {
                 "type": "object",
@@ -161,7 +161,7 @@ class CryptoPriceTool:
 
     async def get_tool_info(self) -> Dict:
         return {
-            "name": "market.get_crypto_price",
+            "name": "get_crypto_price",
             "description": "Get cryptocurrency price from CoinGecko with caching",
             "inputSchema": {
                 "type": "object",
@@ -188,7 +188,7 @@ class FinancialNewsTool:
 
     async def get_tool_info(self) -> Dict:
         return {
-            "name": "market.get_financial_news",
+            "name": "get_financial_news",
             "description": "Get financial news with automatic sentiment analysis",
             "inputSchema": {
                 "type": "object",
@@ -220,7 +220,7 @@ class EconomicIndicatorTool:
 
     async def get_tool_info(self) -> Dict:
         return {
-            "name": "market.get_economic_indicator",
+            "name": "get_economic_indicator",
             "description": "Get economic indicators from Federal Reserve Economic Data (FRED)",
             "inputSchema": {
                 "type": "object",
@@ -252,7 +252,7 @@ class MarketOverviewTool:
 
     async def get_tool_info(self) -> Dict:
         return {
-            "name": "market.get_overview",
+            "name": "get_overview",
             "description": "Get comprehensive market overview including indices, crypto, news, and economic data",
             "inputSchema": {
                 "type": "object",
@@ -271,7 +271,7 @@ class APIStatusTool:
 
     async def get_tool_info(self) -> Dict:
         return {
-            "name": "market.get_api_status",
+            "name": "get_api_status",
             "description": "Get status of all configured financial APIs",
             "inputSchema": {
                 "type": "object",

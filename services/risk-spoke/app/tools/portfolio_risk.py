@@ -21,7 +21,7 @@ class PortfolioRiskTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.analyze_portfolio",
+            "name": "risk_analyze_portfolio",
             "description": "Analyze risk metrics for a portfolio of multiple assets with specified weights",
             "inputSchema": {
                 "type": "object",

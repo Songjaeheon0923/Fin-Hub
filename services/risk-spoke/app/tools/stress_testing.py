@@ -64,7 +64,7 @@ class StressTestingTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.stress_test",
+            "name": "risk_stress_test",
             "description": "Perform stress testing on portfolio under extreme market scenarios",
             "inputSchema": {
                 "type": "object",

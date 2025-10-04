@@ -21,7 +21,7 @@ class RiskMetricsTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.calculate_metrics",
+            "name": "risk_calculate_metrics",
             "description": "Calculate risk and performance metrics: Sharpe, Sortino, Max Drawdown, Beta, Alpha, etc.",
             "inputSchema": {
                 "type": "object",

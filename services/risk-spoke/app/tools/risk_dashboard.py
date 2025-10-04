@@ -32,7 +32,7 @@ class RiskDashboardTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.generate_dashboard",
+            "name": "risk_generate_dashboard",
             "description": "Generate comprehensive risk dashboard with all risk metrics and analyses",
             "inputSchema": {
                 "type": "object",

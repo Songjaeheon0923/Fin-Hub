@@ -46,7 +46,7 @@ class ComplianceCheckerTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.check_compliance",
+            "name": "risk_check_compliance",
             "description": "Perform KYC/AML screening and regulatory compliance checks",
             "inputSchema": {
                 "type": "object",

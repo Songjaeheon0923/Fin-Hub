@@ -21,7 +21,7 @@ class SentimentAnalysisTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.sentiment_analysis",
+            "name": "sentiment_analysis",
             "description": "Enhanced sentiment analysis combining news sentiment with market data scoring (1-5 scale)",
             "inputSchema": {
                 "type": "object",

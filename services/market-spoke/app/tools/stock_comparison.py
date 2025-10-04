@@ -19,7 +19,7 @@ class StockComparisonTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.stock_comparison",
+            "name": "stock_comparison",
             "description": "Compare multiple stocks for correlation, performance, and relative analysis",
             "inputSchema": {
                 "type": "object",

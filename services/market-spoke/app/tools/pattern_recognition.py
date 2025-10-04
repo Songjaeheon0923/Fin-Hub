@@ -21,7 +21,7 @@ class PatternRecognitionTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.pattern_recognition",
+            "name": "pattern_recognition",
             "description": "Detect chart patterns, support/resistance levels, and trend analysis",
             "inputSchema": {
                 "type": "object",

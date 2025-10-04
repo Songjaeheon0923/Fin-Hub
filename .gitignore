@@ -10,6 +10,8 @@ claude-sessions/
 
 # Claude Desktop Config (contains API keys)
 claude_desktop_config.json
+claude_desktop_config.backup.json
+*_config.backup.json
 
 # Environment variables
 .env

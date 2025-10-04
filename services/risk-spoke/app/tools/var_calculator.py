@@ -20,7 +20,7 @@ class VaRCalculatorTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.calculate_var",
+            "name": "risk_calculate_var",
             "description": "Calculate Value at Risk (VaR) using Historical, Parametric, or Monte Carlo methods",
             "inputSchema": {
                 "type": "object",

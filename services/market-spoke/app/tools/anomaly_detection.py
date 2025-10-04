@@ -20,7 +20,7 @@ class AnomalyDetectionTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.anomaly_detection",
+            "name": "anomaly_detection",
             "description": "Detect price and volume anomalies using statistical methods (Z-Score, IQR, Volatility)",
             "inputSchema": {
                 "type": "object",

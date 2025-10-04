@@ -20,7 +20,7 @@ class TailRiskTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.analyze_tail_risk",
+            "name": "risk_analyze_tail_risk",
             "description": "Analyze tail risk, black swan probability, and extreme value distributions",
             "inputSchema": {
                 "type": "object",

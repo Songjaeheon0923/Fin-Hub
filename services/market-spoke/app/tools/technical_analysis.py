@@ -20,7 +20,7 @@ class TechnicalAnalysisTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.technical_analysis",
+            "name": "technical_analysis",
             "description": "Perform comprehensive technical analysis on stocks with indicators like RSI, MACD, Bollinger Bands, and Moving Averages",
             "inputSchema": {
                 "type": "object",

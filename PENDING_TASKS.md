@@ -1,33 +1,19 @@
-# 🎯 Fin-Hub 진행해야 할 작업 및 확장 계획
+# 🎯 Fin-Hub 남은 작업
 
-## 📋 전체 로드맵 개요
-
-현재 **Market Spoke + Risk Spoke 100% 완료, 프로젝트 75% 완료** 상태에서 **12주 완성 계획**으로 세계 최고 수준의 금융 AI 플랫폼 구축을 목표로 합니다.
-
-**완료 상태** (2025-10-04):
-- ✅ Market Spoke: 100% ✨ (프로덕션 준비 완료, 13개 도구)
-- ✅ Risk Spoke: 100% ✨ (프로덕션 준비 완료, 8개 도구)
-- ✅ Portfolio Spoke: 100% ✨ (프로덕션 준비 완료, 8/8 도구)
-- ✅ S&P 500 데이터: 503개 종목 (71 MB)
-- ✅ 7개 API 통합: 7/7 활성화 (100%)
-- ✅ Market Spoke MCP 도구: 13/13 작동
-- ✅ Risk Spoke MCP 도구: 8/8 작동 (17/17 테스트 통과)
-- ✅ Portfolio Spoke MCP 도구: 8/8 작동 (12/12 테스트 통과)
-- ✅ 통합 테스트: 100% 통과
-- ✅ Finnhub API 이슈: 해결 완료
-- ✅ 문서 정리: 완료 (market-spoke/, risk-spoke/, portfolio-spoke/, mcp/, archive/)
-
-
+**현재 완성도**: 85% (Market + Risk + Portfolio Spoke 완료)
+**마지막 업데이트**: 2025-10-04
 
 ---
 
-## 🏗️ Phase 3: Hub Server 강화 (Week 4-6)
+## 📋 남은 작업 (Pending Tasks)
 
-### 1. Service Registry 완성
+### 🏗️ Phase 3: Hub Server 강화 (진행 중 30%)
+
+#### 1. Service Registry 완성
 ```yaml
-목표: 동적 서비스 관리 시스템
 우선순위: 🔥 높음
 현재 상태: 30% (기본 구조만)
+소요 시간: 2주
 
 구현 목표:
   ├── 동적 서비스 등록/해제
@@ -35,17 +21,17 @@
   ├── Load Balancing
   └── Service Discovery
 
-필요 구현:
+필요 API:
   - POST /registry/register
   - GET /registry/discover
   - GET /registry/health
   - DELETE /registry/{service}
 ```
 
-### 2. Tool Execution Engine
+#### 2. Tool Execution Engine
 ```yaml
-목표: 분산 도구 실행 시스템
 우선순위: 🔥 높음
+소요 시간: 2주
 
 구현 패턴:
   ├── Async Task Processing
@@ -62,150 +48,8 @@ Circuit Breaker:
 
 ---
 
-## 💼 Phase 4: Portfolio Spoke 구현 (Week 1-6)
+### 🐳 Phase 5: Docker 컨테이너화
 
-### 현재 상태: 25% (Week 1-2 완료: Core Optimization) ✅
-
-### ✅ Week 1-2 완료 (2025-10-04)
-```yaml
-상태: ✅ 완료
-도구: 2/8 구현
-
-완료 항목:
-  ✅ 1. Portfolio Optimizer (portfolio_optimizer.py - 800 lines)
-     - Mean-Variance Optimization (Markowitz)
-     - Hierarchical Risk Parity (HRP)
-     - Black-Litterman Model
-     - Risk Parity
-     - Max Sharpe / Min Volatility
-     - Efficient Frontier 생성
-
-  ✅ 2. Portfolio Rebalancer (portfolio_rebalancer.py - 650 lines)
-     - Threshold-based rebalancing
-     - Periodic rebalancing
-     - Tax-aware 전략
-     - 거래 비용 최적화
-     - Trade list 생성
-
-  ✅ 인프라:
-     - data_loader.py (500 lines): S&P 500 데이터 로딩
-     - portfolio_math.py (550 lines): 핵심 포트폴리오 계산
-     - mcp_server.py (320 lines): MCP 프로토콜 서버
-     - test_portfolio_tools.py (440 lines): 6개 테스트
-
-  ✅ 문서:
-     - PORTFOLIO_SPOKE_RESEARCH.md (연구 분석)
-     - PORTFOLIO_SPOKE_DESIGN.md (설계 명세)
-     - README.md (사용 가이드)
-
-라이브러리:
-  - PyPortfolioOpt 1.5.5 (최적화)
-  - riskfolio-lib 6.3.0 (리스크 관리)
-  - skfolio 0.4.0 (2025년 최신)
-  - VectorBT 0.26.1 (백테스팅)
-  - Alphalens-reloaded 0.4.5 (팩터 분석)
-```
-
-### ✅ Week 3-4: Performance & Backtesting (완료 2025-10-04)
-```yaml
-상태: ✅ 완료
-도구: 3/3 구현
-
-완료 항목:
-  ✅ 3. Performance Analyzer (performance_analyzer.py - 450 lines)
-     - 수익률 계산 (Total, Annualized, YTD, MTD)
-     - 벤치마크 비교 (fallback to first stock if SPY unavailable)
-     - Attribution Analysis (기여도 분석)
-     - 리스크 조정 수익률 (Sharpe, Sortino, Calmar)
-     - 최대 낙폭 (Max Drawdown)
-     - Beta/Alpha (CAPM)
-
-  ✅ 4. Backtester (backtester.py - 650 lines)
-     - Momentum 전략 (top N by returns)
-     - Mean Reversion 전략 (oversold/overbought)
-     - Equal Weight 전략
-     - Equity Curve 생성
-     - 월별/연도별 수익률
-     - 거래 비용 및 슬리피지 고려
-
-  ✅ 5. Factor Analyzer (factor_analyzer.py - 550 lines)
-     - 팩터 계산 (Market, Size, Value, Momentum, Quality)
-     - OLS 회귀 분석
-     - 팩터 노출도 (betas)
-     - 팩터 기여도 (returns)
-     - Alpha 계산
-     - R-squared (모델 적합도)
-
-테스트:
-  - 3개 도구 100% 통과 (3/3)
-  - 기존 2개 도구 유지 (100% 통과)
-  - 총 5/8 도구 작동 (62.5% 완성)
-
-데이터:
-  ✅ S&P 500 역사 데이터 (이미 보유)
-  🔄 Fama-French 팩터 (프록시 사용 중, 실제 다운로드는 선택사항)
-```
-
-### ✅ Week 5-6: Advanced Features (완료 2025-10-04)
-```yaml
-상태: ✅ 완료
-도구: 3/3 구현
-
-완료 항목:
-  ✅ 6. Asset Allocator (asset_allocator.py - 580 lines)
-     - Strategic allocation (장기 정책 기반)
-     - Tactical allocation (단기 모멘텀 기반)
-     - Diversification analysis (HHI, 효과적 자산 수)
-     - Correlation analysis (자산 간 상관관계)
-     - Rebalancing check (드리프트 감지)
-
-  ✅ 7. Tax Optimizer (tax_optimizer.py - 620 lines)
-     - Tax Loss Harvesting (손실 실현 최적화)
-     - Wash Sale detection (30일 규칙 위반 감지)
-     - LTCG vs STCG (장기/단기 자본 이득 분류)
-     - Tax benefit calculation (세금 절감 예측)
-     - Recommendations (실행 가능한 권장사항)
-
-  ✅ 8. Portfolio Dashboard (portfolio_dashboard.py - 750 lines)
-     - Health score (0-100 건강도 점수)
-     - Performance metrics (수익률, Sharpe, Sortino)
-     - Risk assessment (변동성, Beta, VaR)
-     - Diversification (집중도 리스크)
-     - Rebalancing status (재조정 필요 여부)
-     - Tax efficiency (세금 효율성)
-     - Alerts & Recommendations (알림 및 권장사항)
-
-테스트:
-  - 3개 도구 100% 통과 (3/3)
-  - 기존 5개 도구 유지 (100% 통과)
-  - 총 8/8 도구 작동 (100% 완성)
-
-최종 달성:
-  ✅ 8/8 도구 완성
-  ✅ 100% 테스트 커버리지 (12/12 테스트)
-  ✅ Market + Risk Spoke 통합 가능
-  ✅ 완전한 문서화
-```
-
-### 데이터 소스
-```yaml
-현재 보유:
-  ✅ S&P 500: 503개 주식, 5년 데이터 (71 MB)
-  ✅ Market Spoke: 13개 도구 (가격, 기술 분석, 감성 분석)
-  ✅ Risk Spoke: 8개 도구 (VaR, 리스크 메트릭, 포트폴리오 리스크)
-  ✅ 암호화폐 데이터 (CoinGecko API)
-  ✅ 경제 지표 (FRED API)
-
-추가 필요:
-  🔄 Fama-French 팩터 (무료, Week 3-4)
-  🔄 ETF 데이터 (선택적, 주식으로 대체 가능)
-```
-
----
-
-## 🐳 Phase 5: Docker 컨테이너화 (Week 10-11)
-
-### 목표: 프로덕션 배포 준비
 ```yaml
 우선순위: 🟡 중간
 소요 시간: 2주
@@ -215,7 +59,7 @@ Circuit Breaker:
      - hub-server/Dockerfile
      - market-spoke/Dockerfile
      - risk-spoke/Dockerfile
-     - pfolio-spoke/Dockerfile
+     - portfolio-spoke/Dockerfile
 
   2. docker-compose.yml
      - 서비스 오케스트레이션
@@ -238,9 +82,8 @@ Circuit Breaker:
 
 ---
 
-## 🤖 Phase 6: AI/ML 모델 통합 (Week 12-13)
+### 🤖 Phase 6: AI/ML 모델 통합
 
-### 목표: 예측 및 자동화
 ```yaml
 우선순위: 🟠 중간
 소요 시간: 2주
@@ -274,11 +117,11 @@ Circuit Breaker:
 
 ---
 
-## 🔒 Phase 7: 보안 및 운영 (Week 14-15)
+### 🔒 Phase 7: 보안 및 운영
 
-### 보안 강화
 ```yaml
 우선순위: 🟡 중간
+소요 시간: 2주
 
 구현 항목:
   1. 인증 시스템
@@ -304,25 +147,20 @@ Circuit Breaker:
 
 ---
 
-## 📚 문서화 및 테스트 (Week 16-17)
+### 📚 문서화 및 End-to-End 테스트
 
-### 문서화
 ```yaml
 우선순위: 🟡 중간
+소요 시간: 2주
 
-작성 목표:
+문서화:
   - API 문서 (OpenAPI/Swagger)
-  - 사용자 가이드
-  - 개발자 가이드
+  - 사용자 가이드 (통합)
+  - 개발자 가이드 (통합)
   - 배포 가이드
-  - 트러블슈팅
-```
+  - 트러블슈팅 가이드
 
-### End-to-End 테스트
-```yaml
-우선순위: 🔥 높음
-
-테스트 시나리오:
+E2E 테스트 시나리오:
   1. 시장 분석 → 포트폴리오 생성
   2. 리스크 관리 → 컴플라이언스
   3. 백테스팅 → 성과 평가
@@ -336,86 +174,191 @@ Circuit Breaker:
 
 ---
 
-## 🎯 우선순위별 즉시 시작 가능한 작업
+## 🎯 우선순위별 작업 순서
 
-### 🔥 최우선 (즉시 시작)
-1. **Portfolio Spoke 구현** (Week 7-9)
-   - 포트폴리오 최적화
-   - 리밸런싱 자동화
-   - Market Spoke + Risk Spoke 데이터 활용
-
-2. **Hub Server Service Registry 구현** (Week 4-6)
+### 🔥 최우선 (즉시 시작 가능)
+1. **Hub Server Service Registry 구현** (2주)
    - 동적 서비스 관리 핵심
    - 확장성의 기반
 
+2. **Hub Server Tool Execution Engine** (2주)
+   - 분산 도구 실행
+   - Circuit Breaker 패턴
+
 ### 🟡 병렬 진행 가능
-1. **Docker 환경 설정** (Week 10-11)
-2. **문서화 시작** (지속적)
-3. **Gekko 데이터 다운로드** (선택, 필요 시)
+1. **Docker 환경 설정** (2주)
+2. **E2E 테스트 시나리오 작성** (지속적)
+3. **통합 문서화** (지속적)
 
 ### 🟢 선택 사항
-1. Market Spoke 고급 분석 도구
-2. 시간별 주식 데이터
-3. AI/ML 모델 통합
+1. AI/ML 모델 통합 (2주)
+2. 고급 보안 및 모니터링 (2주)
 
 ---
 
 ## 💾 저장 공간 요구사항
 
-### 단계별 용량 계획
 ```yaml
-현재 (Phase 1): 71.4 MB ✅
+현재 사용량: 71.4 MB
   - S&P 500: 71 MB
   - Crypto cache: 365 KB
-  - Gekko: 0 MB
 
-Phase 2 후 (Gekko 다운로드): +100 MB ~ +21 GB
-Phase 3-8 후: +2 GB (로그, 캐시, 모델)
+Phase 5-7 후 예상: +2 GB
+  - 로그, 캐시, 모델 데이터
 
-총 예상: ~73 MB ~ 94 GB (Gekko 선택에 따라)
+총 예상: ~2.1 GB
 
 권장 시스템:
-├── 여유 공간: 100 GB+
-├── RAM: 8 GB+
-├── CPU: 멀티코어
-└── 네트워크: 고속 인터넷
+  ├── 여유 공간: 20 GB+
+  ├── RAM: 8 GB+
+  ├── CPU: 멀티코어
+  └── 네트워크: 고속 인터넷
 ```
 
 ---
 
-## 🎉 17주 후 최종 목표
+## 📅 타임라인
 
-**완성된 Fin-Hub 플랫폼:**
-- ✅ Market Spoke: 실시간 시장 데이터 및 분석 (완료)
-- ✅ Risk Spoke: 리스크 관리 및 컴플라이언스 (완료)
-- ✅ Portfolio Spoke: 포트폴리오 최적화 및 관리 (완료) ✨
+- **Week 1-2**: Hub Server Service Registry
+- **Week 3-4**: Hub Server Tool Execution Engine
+- **Week 5-6**: Docker 컨테이너화
+- **Week 7-8**: AI/ML 모델 통합 (선택)
+- **Week 9-10**: 보안 및 운영
+- **Week 11-12**: 문서화 및 E2E 테스트
+
+**예상 완료**: 6-12주 후
+
+---
+
+## ✅ 완료된 작업 (Completed Tasks)
+
+### Market Spoke (100% ✨)
+- **완료일**: 2025-10-04
+- **도구 수**: 13개
+- **상태**: 프로덕션 준비 완료
+
+**구현된 도구**:
+1. Stock Quote (실시간 주가)
+2. Historical Data (역사 데이터)
+3. Technical Indicators (기술 지표)
+4. Market News (시장 뉴스)
+5. Crypto Prices (암호화폐)
+6. Economic Indicators (경제 지표)
+7. Company Profile (기업 정보)
+8. Market Movers (시장 변동)
+9. Sector Performance (섹터 성과)
+10. Earnings Calendar (실적 일정)
+11. Sentiment Analysis (감성 분석)
+12. Options Data (옵션 데이터)
+13. Institutional Holdings (기관 보유)
+
+**API 통합**: 7/7 활성화
+- Alpha Vantage, NewsAPI, CoinGecko, FRED, OpenSanctions, MarketStack, Finnhub
+
+**데이터**:
+- S&P 500: 503개 종목, 5년 데이터 (71 MB)
+
+**테스트**: 100% 통과
+
+**문서**:
+- MARKET_SPOKE_DESIGN.md
+- README.md
+- API Reference
+
+---
+
+### Risk Spoke (100% ✨)
+- **완료일**: 2025-10-04
+- **도구 수**: 8개
+- **상태**: 프로덕션 준비 완료
+
+**구현된 도구**:
+1. VaR Calculator (Value at Risk)
+2. Risk Metrics (리스크 메트릭)
+3. Stress Testing (스트레스 테스트)
+4. Portfolio Risk (포트폴리오 리스크)
+5. Correlation Matrix (상관관계 매트릭스)
+6. Drawdown Analysis (낙폭 분석)
+7. Risk Attribution (리스크 기여도)
+8. Compliance Check (규제 준수)
+
+**규제 준수**:
+- Basel III
+- DORA (EU)
+- SR 21-14 (Fed)
+
+**테스트**: 17/17 통과 (100%)
+
+**문서**:
+- RISK_SPOKE_DESIGN.md
+- README.md
+- Test Report
+
+---
+
+### Portfolio Spoke (100% ✨)
+- **완료일**: 2025-10-04
+- **도구 수**: 8개
+- **상태**: 프로덕션 준비 완료
+
+**구현된 도구**:
+1. Portfolio Optimizer (포트폴리오 최적화)
+   - Mean-Variance, HRP, Black-Litterman, Risk Parity
+2. Portfolio Rebalancer (리밸런싱)
+   - Threshold-based, Periodic, Tax-aware
+3. Performance Analyzer (성과 분석)
+   - Returns, Sharpe, Sortino, Alpha/Beta
+4. Backtester (백테스팅)
+   - Momentum, Mean-Reversion, Equal Weight
+5. Factor Analyzer (팩터 분석)
+   - Fama-French, Momentum, Quality
+6. Asset Allocator (자산 배분)
+   - Strategic, Tactical, Diversification
+7. Tax Optimizer (세금 최적화)
+   - Tax Loss Harvesting, Wash Sale
+8. Portfolio Dashboard (대시보드)
+   - Health Score, Alerts, Recommendations
+
+**라이브러리**:
+- PyPortfolioOpt, riskfolio-lib, skfolio, VectorBT, Alphalens
+
+**테스트**: 12/12 통과 (100%)
+
+**문서**:
+- PORTFOLIO_SPOKE_DESIGN.md
+- PORTFOLIO_SPOKE_RESEARCH.md
+- README.md
+
+---
+
+### 인프라 및 MCP 서버
+- **MCP 서버**: 4개 (Hub, Market, Risk, Portfolio)
+- **총 MCP 도구**: 31개
+  - Hub: 2개
+  - Market: 13개
+  - Risk: 8개
+  - Portfolio: 8개
+- **MCP 테스트**: CLI 측정 완료 (3-8초 초기화)
+- **설정 백업**: claude_desktop_config.backup.json
+
+**문서**:
+- TESTING_GUIDE.md
+- MCP 통합 가이드
+
+---
+
+## 🎉 최종 목표
+
+**완성될 Fin-Hub 플랫폼:**
+- ✅ Market Spoke: 실시간 시장 데이터 및 분석
+- ✅ Risk Spoke: 리스크 관리 및 컴플라이언스
+- ✅ Portfolio Spoke: 포트폴리오 최적화 및 관리
 - 🔄 Hub Server: 서비스 오케스트레이션
-- ✅ 7개 API 통합: 실시간 데이터 (완료)
-- ✅ 503개 S&P 500 주식: 5년 역사 데이터 (완료)
+- ✅ 7개 API 통합: 실시간 데이터
+- ✅ 503개 S&P 500 주식: 5년 역사 데이터
 - 🔄 AI/ML 모델: 예측 및 자동화
 - 🔄 Docker 컨테이너: 프로덕션 배포
 - 🔄 완전한 보안: 인증, 암호화, 모니터링
-- ✅ 종합 문서화: 사용자 및 개발자 가이드 (Market + Risk + Portfolio 완료)
+- 🔄 통합 문서화: E2E 가이드
 
 **비용 효율적인 고성능 금융 AI 플랫폼 완성!** 🚀
-
-**마지막 업데이트**: 2025-10-04
-**현재 완성도**:
-- Market Spoke: 100% ✨
-- Risk Spoke: 100% ✨
-- Portfolio Spoke: 100% ✨ (Week 1-6 완료)
-- 전체: ~85%
-
-**주요 성과**:
-- ✅ 29개 MCP 도구 (Market 13개 + Risk 8개 + Portfolio 8개)
-- ✅ 100% 테스트 통과 (모든 spoke, 12/12 Portfolio 테스트)
-- ✅ Portfolio Spoke 완료 (8/8 도구)
-  - Week 1-2: 최적화, 리밸런싱
-  - Week 3-4: 성과 분석, 백테스팅, 팩터 분석
-  - Week 5-6: 자산 배분, 세금 최적화, 대시보드
-- ✅ Basel III, DORA, SR 21-14 규제 준수
-- ✅ 문서 정리 및 재구성
-- ✅ 3개 설계 문서 (Market + Risk + Portfolio)
-- ✅ Scipy 기반 구현 (외부 의존성 최소화)
-
-**다음 단계**: Hub Server 강화 또는 Docker 컨테이너화

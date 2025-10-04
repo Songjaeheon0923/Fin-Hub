@@ -20,7 +20,7 @@ class AlertSystemTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "market.alert_system",
+            "name": "alert_system",
             "description": "Monitor stocks and create alerts for price movements, breakouts, and pattern detection",
             "inputSchema": {
                 "type": "object",

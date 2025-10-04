@@ -20,7 +20,7 @@ class GreeksCalculatorTool:
     async def get_tool_info(self) -> Dict:
         """Get tool information for MCP protocol"""
         return {
-            "name": "risk.calculate_greeks",
+            "name": "risk_calculate_greeks",
             "description": "Calculate option Greeks (Delta, Gamma, Vega, Theta, Rho) using Black-Scholes model",
             "inputSchema": {
                 "type": "object",

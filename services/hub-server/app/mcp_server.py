@@ -16,20 +16,16 @@ from dotenv import load_dotenv
 dotenv_path = project_root / '.env'
 load_dotenv(dotenv_path)
 
-# Configure logging to stderr ONLY (MCP requires stdout for protocol)
+# Configure logging to stderr ONLY
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.CRITICAL,  # Only critical errors
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     stream=sys.stderr,
     force=True
 )
 
-# Disable all existing loggers that might write to stdout
-for logger_name in logging.root.manager.loggerDict:
-    logger = logging.getLogger(logger_name)
-    logger.handlers = []
-    logger.addHandler(logging.StreamHandler(sys.stderr))
-    logger.setLevel(logging.WARNING)
+# Disable ALL loggers
+logging.disable(logging.CRITICAL)
 
 from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
@@ -104,6 +100,15 @@ async def handle_call_tool(
 
 async def main():
     """Run the MCP server"""
+    # Import original stdout/stdin for MCP communication
+    import sys
+    original_stdin = sys.__stdin__
+    original_stdout = sys.__stdout__
+
+    # Temporarily restore stdout for MCP SDK
+    sys.stdin = original_stdin
+    sys.stdout = original_stdout
+
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,

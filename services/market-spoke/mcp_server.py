@@ -7,18 +7,6 @@ import os
 from pathlib import Path
 import logging
 
-# CRITICAL: Disable ALL stdout output before any imports
-# MCP protocol uses stdout exclusively for JSON-RPC communication
-class StderrOnly:
-    """Redirect all print/stdout to stderr"""
-    def write(self, text):
-        sys.stderr.write(text)
-    def flush(self):
-        sys.stderr.flush()
-
-# Replace stdout with stderr redirect
-sys.stdout = StderrOnly()
-
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))

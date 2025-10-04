@@ -21,20 +21,16 @@ dotenv_path = project_root.parent / '.env'
 if dotenv_path.exists():
     load_dotenv(dotenv_path)
 
-# Configure logging to stderr ONLY (MCP requires stdout for protocol)
+# Configure logging to stderr ONLY
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.CRITICAL,  # Only critical errors
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     stream=sys.stderr,
     force=True
 )
 
-# Disable all existing loggers that might write to stdout
-for logger_name in logging.root.manager.loggerDict:
-    logger = logging.getLogger(logger_name)
-    logger.handlers = []
-    logger.addHandler(logging.StreamHandler(sys.stderr))
-    logger.setLevel(logging.WARNING)
+# Disable ALL loggers
+logging.disable(logging.CRITICAL)
 
 from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
@@ -133,21 +129,21 @@ async def handle_call_tool(
 
     try:
         # Route to appropriate tool
-        if name == "risk.calculate_var":
+        if name == "risk_calculate_var":
             result = await var_tool.execute(arguments)
-        elif name == "risk.calculate_metrics":
+        elif name == "risk_calculate_metrics":
             result = await metrics_tool.execute(arguments)
-        elif name == "risk.analyze_portfolio":
+        elif name == "risk_analyze_portfolio":
             result = await portfolio_tool.execute(arguments)
-        elif name == "risk.stress_test":
+        elif name == "risk_stress_test":
             result = await stress_tool.execute(arguments)
-        elif name == "risk.analyze_tail_risk":
+        elif name == "risk_analyze_tail_risk":
             result = await tail_tool.execute(arguments)
-        elif name == "risk.calculate_greeks":
+        elif name == "risk_calculate_greeks":
             result = await greeks_tool.execute(arguments)
-        elif name == "risk.check_compliance":
+        elif name == "risk_check_compliance":
             result = await compliance_tool.execute(arguments)
-        elif name == "risk.generate_dashboard":
+        elif name == "risk_generate_dashboard":
             result = await dashboard_tool.execute(arguments)
         else:
             raise ValueError(f"Unknown tool: {name}")
@@ -167,6 +163,15 @@ async def handle_call_tool(
 
 async def main():
     """Run the MCP server"""
+    # Import original stdout/stdin for MCP communication
+    import sys
+    original_stdin = sys.__stdin__
+    original_stdout = sys.__stdout__
+
+    # Temporarily restore stdout for MCP SDK
+    sys.stdin = original_stdin
+    sys.stdout = original_stdout
+
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,
